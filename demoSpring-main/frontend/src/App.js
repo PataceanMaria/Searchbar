@@ -2,9 +2,9 @@ import logo from './logo.svg';
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import './App.css';
 import {Component} from "react";
-import Home from './Home'
+
 import ProductList from "./ProductList";
-import ProductEdit from "./ProductEdit";
+
 
 class App extends Component {
     state = {
@@ -40,9 +40,9 @@ class App extends Component {
         return (
             <Router>
                 <Switch>
-                    <Route path='/products' exact={true}><Home/></Route>
+
                     <Route path='/' exact={true}><ProductList/></Route>
-                    <Route path='/products/:id'><ProductEdit/></Route>
+
                 </Switch>
             </Router>
         )
