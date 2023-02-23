@@ -40,8 +40,8 @@ class App extends Component {
         return (
             <Router>
                 <Switch>
-                    <Route path='/' exact={true}><Home/></Route>
-                    <Route path='/products' exact={true}><ProductList/></Route>
+                    <Route path='/products' exact={true}><Home/></Route>
+                    <Route path='/' exact={true}><ProductList/></Route>
                     <Route path='/products/:id'><ProductEdit/></Route>
                 </Switch>
             </Router>

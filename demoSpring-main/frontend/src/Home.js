@@ -2,81 +2,123 @@ import {Component} from "react";
 import './App.css'
 import AppNavbar from './AppNavbar'
 import {Link} from 'react-router-dom';
-import {Button, Container} from "reactstrap";
+import {Button, Container, Form} from "reactstrap";
 import { withRouter } from 'react-router-dom'
 
 
 class Home extends Component {
+    emptyitem={
+        name:''
+    }
+
     constructor(props) {
         super(props);
+        this.state = {books: [],
+            filteredData: [],
+            item:this.emptyitem};
+        this.handleSubmit=this.handleSubmit.bind(this);
+        this.handlerfilter=this.handlerfilter.bind(this);
 
-        this.state = {
-            secondsRemaining: 60,
-            newDuration: "",
-            timerRunning: true,
-        };
+
     }
 
     componentDidMount() {
-        this.intervalId = setInterval(this.tick, 1000);
+
+        fetch('/products')
+            .then(response => response.json())
+            .then(data => this.setState({books: data}))
+
+
+    }
+    handlerfilter=(event)=>{
+        const{value}=event.target;
+        const searchTerm = value.toLowerCase();
+        const filteredData= this.state.books.filter(book=>book.name.toLowerCase().includes(searchTerm));
+        const name=event.target.name;
+        const val=event.target.value;
+        const item={...this.state.item};
+        item[name]=val;
+        this.setState({item})
+
+
+        this.setState({filteredData});
+        console.log(this.state.filteredData);
     }
 
-    componentWillUnmount() {
-        clearInterval(this.intervalId);
-    }
 
-    tick = () => {
-        if (this.state.secondsRemaining > 0 && this.state.timerRunning) {
-            this.setState({
-                secondsRemaining: this.state.secondsRemaining - 1,
+    async handleSubmit(event) {
+        await fetch('/products',
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify(this.state.item),
             });
-        } else {
-            clearInterval(this.intervalId);
-        }
-    };
+        this.props.history.push('/products');
 
-    handleInputChange = (event) => {
-        this.setState({
-            newDuration: event.target.value,
-        });
-    };
 
-    handleSubmit = (event) => {
-        event.preventDefault();
-        this.setState({
-            secondsRemaining: parseInt(this.state.newDuration),
-            newDuration: "",
-            timerRunning: true,
-        });
-    };
-
-    handleStop = () => {
-        this.setState({
-            timerRunning: false,
-        });
-    };
+    }
 
     render() {
+        let bo=true;
+        if(this.state.filteredData)
+        {
+            bo=true;
+        }
+        else
+        {
+            bo=false;
+        }
 
-        const { secondsRemaining, newDuration } = this.state;
+
+        const {books, isLoading} = this.state;
+        if (isLoading) {
+            return <p>Loading...</p>
+        }
+        const productList=books.map(book=>{
+            return <div className="items" key={book.id}>
+
+                <div className="name">
+                    {book.name} </div>
+
+
+
+            </div>
+        })
+
         return (
             <div>
-                <h2>Countdown Timer</h2>
-                <div>{secondsRemaining} seconds remaining</div>
-                <form onSubmit={this.handleSubmit}>
-                    <label>
-                        New duration:
-                        <input
-                            type="number"
-                            value={1}
-                            onChange={this.handleInputChange}
-                        />
-                    </label>
-                    <button type="submit">Set Duration</button>
-                </form>
-                <button onClick={this.handleStop}>Stop Timer</button>
+                <div >
+                    <Form onSubmit={this.handleSubmit}>
+                        <input type="text"   onChange={this.handlerfilter} id="name" name="name" value={this.state.item.name}/>
+                        <Button color="primary" type="submit">Save</Button>
+                        {bo?(
+                                <ul>
+                                    {this.state.filteredData.map(book=>(
+                                        <li key={book.id}>
+                                            Carte:{book.name}
+                                        </li>
+                                    ))}
+
+                                </ul>
+
+                            ):
+                            (
+                                <h1>aaaaa</h1>
+
+                            )}
+
+                    </Form>
+
+
+                </div>
+
             </div>
+
         );
+
     }
 }
 
